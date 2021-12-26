@@ -3,11 +3,13 @@ pragma solidity ^0.4.17;
 contract CampaignFactory {
     address[] public deployedCampaigns;
 
+    //create a new campaign
     function createCampaign(uint minimum) public {
         address newCampaign = new Campaign(minimum, msg.sender);
         deployedCampaigns.push(newCampaign);
     }
 
+    //get address array of deployed campaigns
     function getDeployedCampaigns() public view returns (address[]) {
         return deployedCampaigns;
     }
@@ -39,6 +41,7 @@ contract Campaign {
         minimumContribution = minimum;
     }
 
+    //contribute to campaign
     function contribute() public payable {
         require(msg.value > minimumContribution);
 
@@ -46,6 +49,7 @@ contract Campaign {
         approversCount++;
     }
 
+    //create request (for manager), add to requests array
     function createRequest(string description, uint value, address recipient) public restricted {
         Request memory newRequest = Request({
            description: description,
@@ -58,6 +62,7 @@ contract Campaign {
         requests.push(newRequest);
     }
 
+    //approve request (for contributors)
     function approveRequest(uint index) public {
         Request storage request = requests[index];
 
@@ -68,6 +73,7 @@ contract Campaign {
         request.approvalCount++;
     }
 
+    //finalize request and transfer to recipient (for manager)
     function finalizeRequest(uint index) public restricted {
         Request storage request = requests[index];
 
@@ -78,6 +84,7 @@ contract Campaign {
         request.complete = true;
     }
     
+    //get summary of campaign (for FE)
     function getSummary() public view returns (
       uint, uint, uint, uint, address
       ) {
@@ -90,6 +97,7 @@ contract Campaign {
         );
     }
     
+    //for FE
     function getRequestsCount() public view returns (uint) {
         return requests.length;
     }
